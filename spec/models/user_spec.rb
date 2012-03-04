@@ -1,6 +1,45 @@
 require 'spec_helper'
 
 describe User do
+   #Rspec Scenrio 1 - A non admin cannot merge articles
+  describe 'Merge articles' do
+  	describe 'A non-admin cannot merge articles' do
+		before :each do
+		     @publisher = Factory.build(:user, :profile => Factory.build(:profile_publisher))	 
+		     @articleOne = Factory(:article, :user => @publisher)
+		     @articleTwo = Factory(:article, :user => @publisher)
+		end
+		it 'should check the user is a user and return false' do
+		     @publisher.should_not be_admin
+		end
+		it 'should not call the model method for article merge' do
+		     @articleOne.should_not_receive(:merge).with(@articleTwo.id)
+		     post :MergeArticle, 'id' => @articleTwo.id
+		end
+	end
+
+	describe 'An admin can merge articles' do
+		before :each do
+			@admin = Factory.build(:user, :profile => Factory.build(:profile_admin, :label => Profile::ADMIN))
+			@articleOne = Factory(:article, :user => @admin)
+			@articleTwo = Factory(:article, :user => @admin)
+		end
+		it 'should check the user is an admin and return true' do
+			@admin.should be_admin
+		end
+		it 'should call the model method for merging article and return true' do
+			@articleOne.should_receive(:merge).with(@articleTwo.id).and_return('True')
+			post :mergeArticle, 'id' => @articleTwo.id
+		end
+		it 'should redirect to the index page' do
+			@articleOne.should_receive(:merge).with(@articleTwo.id).and_return('True')
+			post :mergeArticle, 'id' => @articleTwo.id
+			response.should redirect_to(:controller => '/admin/content', :action => 'index')
+		end
+	end
+  end
+
+
   describe 'Factory Girl' do
     it 'should user factory valid' do
       Factory.create(:user).should be_valid
