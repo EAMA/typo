@@ -6,7 +6,7 @@
 <%- if current_user.admin? %>
   <h4><%= _("Merge Articles") %></h4>
   <%= form_tag({:action => "merge", :controller => "content", :id => @article.id}, :method => "post") do %>
-  <div class='editor-left'>
+  <div>
     <%= _("Article ID") %>
     <%= text_field_tag(:merge_id) %>
     <br/>
