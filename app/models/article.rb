@@ -35,6 +35,7 @@ class Article < Content
     def spam
       find :all, :conditions => {:state => ["presumed_spam", "spam"]}
     end
+    
 
   end
 
@@ -460,7 +461,39 @@ class Article < Content
     return from..to
   end
 
-  def self.merge(articleid) 
-  	return 'True'
-  end
+      public
+    
+      #This is added for hw5. Merge two articles. The article body is appended to another.
+    #Comments are transfered by changing the article id 
+     #Article is removed after merge.
+    def merge(articleid)
+
+       otherArticle = Article.find_by_id(articleid) 
+       if otherArticle.nil?
+        return nil
+       end
+       
+       self.body = self.body + otherArticle.body
+       #self.comments = self.comments + otherArticle.comments
+       self.save
+       #otherArticle.save
+       #tmpbody = self.body
+       #tmpbody << otherArticle.body
+       #p "**********", body
+       #p "##################", Article.find_by_id(self.id).body
+       #Article.find_by_id(self.id).update_attributes({:body => tmpbody})
+       #p "#############", self.body
+       #Article.find_by_id(self.id).save
+       #otherComments = Comment.find_by_article_id(articleid)
+       #p '****', articleid
+       #p otherComments
+       otherArticle.comments.each do |era|
+        era.article = self
+        era.save
+       end    
+       otherArticle = Article.find_by_id(articleid) 
+    
+       otherArticle.destroy
+    end
+
 end

@@ -13,6 +13,49 @@ describe Article do
 
     @articles = []
   end
+  
+  it "test merge model function" do
+    ernest = Factory(:user, :login => 'Ernest')
+    steven = Factory(:user, :login => 'steven')
+  
+    articleA = Article.new
+    articleA.id = 123
+    articleA.body = "Good"
+    articleA.title = "Go"
+    articleA.author = "Fox"
+    articleA.save!
+    
+    articleX = Article.new
+    articleX.id = 456
+    articleX.body = "Morning"
+    articleX.title = "Bears"
+    articleX.author = "Patterson"
+    articleX.save!
+
+    commentA = Comment.new do |c|
+        c.body = "content"
+        c.author = 'Armando'
+        c.article = articleA
+        c.user_id = ernest.id
+    end
+    assert commentA.save!
+    assert commentA.ham?
+
+    commentB = Comment.new do |c|
+        c.body = "Body"
+        c.author = 'David'
+        c.article = articleX
+        c.user_id = steven.id
+    end
+    assert commentB.save!
+    assert commentB.ham?
+
+    articleA.merge(articleX.id)
+    articleA.body.should =~ /Good.*Morning/
+    articleA.author.should == "Fox" 
+    newBornCommentB = Comment.find_by_id(commentB.id)
+    newBornCommentB.article.id.should == articleA.id
+  end
 
   def assert_results_are(*expected)
     assert_equal expected.size, @articles.size

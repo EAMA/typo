@@ -2,6 +2,54 @@ require 'spec_helper'
 
 describe Admin::ContentController do
   render_views
+  
+  describe ContentController, 'merge' do
+    it 'merge two articles' do
+      Factory(:blog)
+      @user = Factory(:user, :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+      request.session = { :user => @user.id }
+
+=begin
+      articleA = Article.new
+      articleA.id = 123
+      articleA.body = "Good"
+      articleA.title = "Go"
+      articleA.author = "Fox"
+      articleA.save!
+      
+      articleX = Article.new
+      articleX.id = 456
+      articleX.body = "Morning"
+      articleX.title = "Bears"
+      articleX.author = "Patterson"
+      articleX.save!
+=end
+      #articleC = Article.new
+      #articleC.id = 123
+      #articleC.body = "GoodblahMorning"
+      #articleC.title = "Go"
+      #articleC.author = "Fox"
+      #articleC.save!
+
+#article = Factory(:article, :body => 'once uppon an originally time')
+
+      articleA = Factory(:article, :id => 123, :body => "Good", :title => "Go", :author => "Fox")
+      articleB = Factory(:article, :id => 456, :body => "Morning", :title => "Bears", :author => "Patterson")
+      #articleC = Factory(:article, :id => 123, :body => "Good something Morning", :title => "Go", :author => "Fox")
+      
+      #####Comments are tested in model method#####
+      #commentA = mock('Comment', :article_id => 123, :body => 'content', :author => 'Armando', :email => 'Armando@home', :url => 'http://Armando.home/')
+
+      #commentB = mock('Comment', :article_id => 456, :body => 'body', :author => 'David', :email => 'David@home', :url => 'http://David.home/')
+      
+      Article.should_receive(:find_by_id).with(articleA.id).and_return(articleA)
+      articleA.should_receive(:merge).with(articleB.id)
+      
+      post :merge, {:id => articleA.id, :merge_id => articleB.id}
+      
+      response.should redirect_to :action => "edit", :id => articleA.id
+    end
+  end
 
   # Like it's a shared, need call everywhere
   shared_examples_for 'index action' do

@@ -5,6 +5,7 @@ describe "admin/content/new.html.erb" do
     admin = stub_model(User, :settings => {:editor => 'simple'}, :admin? => true,
                        :text_filter_name => "", :profile_label => "admin")
     blog = mock_model(Blog, :base_url => "http://myblog.net/")
+    
     article = stub_model(Article).as_new_record
     text_filter = stub_model(TextFilter)
 
@@ -33,5 +34,24 @@ describe "admin/content/new.html.erb" do
     assign(:macros, [])
     assign(:resources, [])
     render
+  end
+  
+  it 'non-admin cannot merge article, which means he/she cannot see the merge form at all' do
+      user = stub_model(User, :settings => {:editor => 'simple'}, :admin? => false,
+                       :text_filter_name => "", :profile_label => "contributor")
+     blognew = mock_model(Blog, :base_url => "http://myblog.net/")
+    
+    articlenew = stub_model(Article).as_new_record
+    text_filternew = stub_model(TextFilter)
+
+    articlenew.stub(:text_filter) { text_filternew }
+    view.stub(:current_user) { user }
+    view.stub(:this_blog) { blognew }
+      
+    assign(:images, [])
+    assign(:macros, [])
+    assign(:resources, [])
+      render
+      rendered.should_not contain("Merge Articles")
   end
 end

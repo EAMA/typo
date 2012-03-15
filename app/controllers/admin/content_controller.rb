@@ -61,6 +61,15 @@ class Admin::ContentController < Admin::BaseController
     render :partial => "#{editor}_editor"
   end
 
+  def merge
+    currentArticle = Article.find_by_id(params[:id])
+    result = currentArticle.merge(params[:merge_id])
+    if result.nil?
+      flash[:error] = 'The merge article id you entered was invalid'
+    end
+    redirect_to :action => 'edit', :id => params[:id]#'index'
+  end
+
   def category_add; do_add_or_remove_fu; end
   alias_method :resource_add,    :category_add
   alias_method :resource_remove, :category_add
